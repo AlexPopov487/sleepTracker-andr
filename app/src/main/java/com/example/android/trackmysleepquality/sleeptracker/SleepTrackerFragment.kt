@@ -76,6 +76,8 @@ class SleepTrackerFragment : Fragment() {
             }
         })
 
+
+
         // show snackBar when data is wiped
         sleepTrackerViewModel.showStackBarEvent.observe(viewLifecycleOwner, Observer {showSnackBar ->
             if (showSnackBar) {
@@ -91,6 +93,18 @@ class SleepTrackerFragment : Fragment() {
         binding.sleepTrackerViewModel = sleepTrackerViewModel
         // this allows us to always get updated live data
         binding.lifecycleOwner = this
+
+        // create our custom adapter object
+        val adapter = SleepNightAdapter()
+        // attach our adapter to the recycleView widget in xml
+        binding.sleepList.adapter = adapter
+
+        // add info into our data list (created in adapter) if there is something to add
+        sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                adapter.data = it
+            }
+        })
 
         return binding.root
     }
