@@ -102,7 +102,8 @@ class SleepTrackerFragment : Fragment() {
         // add info into our data list (created in adapter) if there is something to add
         sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.data = it
+                // a default method of ListAdapter that helps to update data if the list has changed
+                adapter.submitList(it)
             }
         })
 
