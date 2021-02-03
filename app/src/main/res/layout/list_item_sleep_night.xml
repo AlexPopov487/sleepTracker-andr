@@ -7,12 +7,17 @@
         <variable
             name="sleepNight"
             type="com.example.android.trackmysleepquality.database.SleepNight" />
+
+        <variable
+            name="nightClickListener"
+            type="com.example.android.trackmysleepquality.sleeptracker.SleepNightClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:onClick="@{() -> nightClickListener.onGridItemClick(sleepNight)}">
 
         <ImageView
             android:id="@+id/quality_image"

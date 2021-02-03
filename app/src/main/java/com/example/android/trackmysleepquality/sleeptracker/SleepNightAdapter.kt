@@ -5,13 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.android.trackmysleepquality.R
-import com.example.android.trackmysleepquality.convertDurationToFormatted
-import com.example.android.trackmysleepquality.convertNumericQualityToString
 import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.databinding.ListItemSleepNightBinding
 
-class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.MyViewHolder>(SleepNightDiffCallback()) {
+class SleepNightAdapter(val sleepNightClickClickListener: SleepNightClickListener): ListAdapter<SleepNight, SleepNightAdapter.MyViewHolder>(SleepNightDiffCallback()) {
 
     // with ListAdapter, we do not need var data declaration as well as getItemCount()
 //    var data = listOf<SleepNight>()
@@ -29,17 +26,19 @@ class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.MyViewHolder>
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        holder.bind(item, sleepNightClickClickListener)
     }
 
 
 
     class MyViewHolder private constructor(val binding: ListItemSleepNightBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: SleepNight) {
+        fun bind(item: SleepNight, nightClickListener: SleepNightClickListener) {
             // attach our sleepNight item to the binding object declared in xml. Next, I will refer
             // all the views in xml to the sleepNight object
             binding.sleepNight = item
+            // connect nightClickListener from xml with this nightClickListener
+            binding.nightClickListener = nightClickListener
             // makes binding faster
             binding.executePendingBindings()
         }
@@ -68,4 +67,8 @@ class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.MyViewHolder>
 
 
     }
+}
+
+class SleepNightClickListener(val nightClickListener: (sleepNightId: Long) -> Unit) {
+    fun onGridItemClick(night: SleepNight) = nightClickListener(night.nightId)
 }
