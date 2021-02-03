@@ -37,24 +37,11 @@ class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.MyViewHolder>
     class MyViewHolder private constructor(val binding: ListItemSleepNightBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: SleepNight) {
-            //getting access to resources in order to invoke one of the Utils function
-            val res = itemView.context.resources
-
-            // set the text for the sleepDurationTextView using one of the utils formatting methods
-            binding.sleepLengthText.text = convertDurationToFormatted(item.startTimeMillis,
-                    item.endTimeMillis, res)
-            // set the formatted string to sleepQualityTextView
-            binding.qualityText.text = convertNumericQualityToString(item.sleepQuality, res)
-            //set the custom icon to the sleepQualityImageView
-            binding.qualityImage.setImageResource(when (item.sleepQuality) {
-                0 -> R.drawable.ic_sleep_0
-                1 -> R.drawable.ic_sleep_1
-                2 -> R.drawable.ic_sleep_2
-                3 -> R.drawable.ic_sleep_3
-                4 -> R.drawable.ic_sleep_4
-                5 -> R.drawable.ic_sleep_5
-                else -> R.drawable.ic_sleep_active
-            })
+            // attach our sleepNight item to the binding object declared in xml. Next, I will refer
+            // all the views in xml to the sleepNight object
+            binding.sleepNight = item
+            // makes binding faster
+            binding.executePendingBindings()
         }
 
         companion object {
