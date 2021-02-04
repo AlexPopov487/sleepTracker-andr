@@ -25,12 +25,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.trackmysleepquality.R
 import com.example.android.trackmysleepquality.database.SleepDatabase
-import com.example.android.trackmysleepquality.database.SleepDatabaseDao
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
 import com.google.android.material.snackbar.Snackbar
 
@@ -68,20 +66,24 @@ class SleepTrackerFragment : Fragment() {
         val sleepTrackerViewModel = ViewModelProvider(this, viewModelFactory)
                 .get(SleepTrackerViewModel::class.java)
 
+        // connect viewModel declaration from XML with the actual viewModel
+        binding.sleepTrackerViewModel = sleepTrackerViewModel
+        // this allows us to always get updated live data
+        binding.lifecycleOwner = this
+
         // if navigateToSleepQualityFragment variable is empty we will not navigate at all
         // otherwise, we will perform navigation passing along the night id
-        sleepTrackerViewModel.navigateToSleepQualityFragment.observe(viewLifecycleOwner, Observer {
-            night ->
-            night?.let { this.findNavController().navigate(SleepTrackerFragmentDirections
-                    .actionSleepTrackerFragmentToSleepQualityFragment(night.nightId))
+        sleepTrackerViewModel.navigateToSleepQualityFragment.observe(viewLifecycleOwner, Observer { night ->
+            night?.let {
+                this.findNavController().navigate(SleepTrackerFragmentDirections
+                        .actionSleepTrackerFragmentToSleepQualityFragment(night.nightId))
                 sleepTrackerViewModel.doneNavigation()
             }
         })
 
 
-
         // show snackBar when data is wiped
-        sleepTrackerViewModel.showStackBarEvent.observe(viewLifecycleOwner, Observer {showSnackBar ->
+        sleepTrackerViewModel.showSnackBarEvent.observe(viewLifecycleOwner, Observer { showSnackBar ->
             if (showSnackBar) {
                 Snackbar.make(activity!!.findViewById(android.R.id.content),
                         R.string.cleared_message,
@@ -91,27 +93,33 @@ class SleepTrackerFragment : Fragment() {
             }
         })
 
-        // connect viewModel declaration from XML with the actual viewModel
-        binding.sleepTrackerViewModel = sleepTrackerViewModel
-        // this allows us to always get updated live data
-        binding.lifecycleOwner = this
-
-        // create our custom adapter object
-        val adapter = SleepNightAdapter(SleepNightClickListener { sleepNightId ->
-            Toast.makeText(context, "$sleepNightId", Toast.LENGTH_LONG).show()
-        })
-        // attach our adapter to the recycleView widget in xml
-        binding.sleepList.adapter = adapter
 
         // create grid layout manager for the recycler view
         val manager = GridLayoutManager(activity, 3)
         binding.sleepList.layoutManager = manager
+
+
+        // create our custom adapter object
+        val adapter = SleepNightAdapter(SleepNightClickListener { sleepNightId ->
+            sleepTrackerViewModel.onSleepNightClicked(sleepNightId)
+        })
+        // attach our adapter to the recycleView widget in xml
+        binding.sleepList.adapter = adapter
+
 
         // add info into our data list (created in adapter) if there is something to add
         sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
                 // a default method of ListAdapter that helps to update data if the list has changed
                 adapter.submitList(it)
+            }
+        })
+
+        sleepTrackerViewModel.navigateToSleepDetail.observe(viewLifecycleOwner, Observer {night ->
+            night?.let {
+                this.findNavController().navigate(SleepTrackerFragmentDirections
+                        .actionSleepTrackerFragmentToSleepDetailFragment(night))
+                sleepTrackerViewModel.onSleepDetailNavigationDone()
             }
         })
 

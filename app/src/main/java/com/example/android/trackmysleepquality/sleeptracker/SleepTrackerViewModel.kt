@@ -61,13 +61,24 @@ class SleepTrackerViewModel(
 
 
     private var _showSnackBarEvent = MutableLiveData<Boolean>()
-    val showStackBarEvent: LiveData<Boolean>
+    val showSnackBarEvent: LiveData<Boolean>
         get() = _showSnackBarEvent
 
     fun doneShowingSnackBar(){
         _showSnackBarEvent.value = false
     }
 
+    private val _navigateToSleepDetail = MutableLiveData<Long>()
+    val navigateToSleepDetail
+        get() = _navigateToSleepDetail
+
+    fun onSleepNightClicked(sleepId: Long){
+        _navigateToSleepDetail.value = sleepId
+    }
+
+    fun onSleepDetailNavigationDone(){
+        _navigateToSleepDetail.value = null
+    }
     init {
         initializeTonight()
     }
@@ -141,6 +152,8 @@ class SleepTrackerViewModel(
             database.clear()
         }
     }
+
+
 
 
 }
